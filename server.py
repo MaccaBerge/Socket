@@ -1,6 +1,11 @@
 import socket 
 import threading
 
+from ssdpy import SSDPServer
+
+
+
+# Socket
 HEADER = 64
 PORT = 5050
 SERVER = socket.gethostbyname(socket.gethostname())
@@ -10,6 +15,13 @@ DISCONNECT_MESSAGE = "!DISCONNECT"
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
+
+# SSDP
+location = f"http://{SERVER}:{PORT}"
+
+def start_ssdp_server():
+    server = SSDPServer("my-chat-service", device_type="chat-service", location=location)
+    server.serve_forever()
 
 def handle_client(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
@@ -28,27 +40,15 @@ def handle_client(conn, addr):
 
     conn.close()
 
-
-
 def start_server():
+    ssdp_thread = threading.Thread(target=start_ssdp_server)
+    ssdp_thread.start()
+
     server.listen()
     print(f"[LISTENING] server is listening on {SERVER}")
     while True:
         conn, addr = server.accept()
         thread = threading.Thread(target=handle_client, args=(conn, addr))
         thread.start()
-        
-
-
-
-
-
-
-
-
-
-
-
-
 
 

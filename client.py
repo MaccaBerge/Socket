@@ -1,10 +1,20 @@
 import socket
+from ssdpy import SSDPClient
+import urllib.parse
+
+client = SSDPClient()
+devices = client.m_search("chat-service")
+for device in devices:
+    location = device.get("location")
+    url = urllib.parse.urlparse(location)
+    chat_server_ip = url.hostname
+    chat_server_port = url.port
 
 HEADER = 64
-PORT = 5050
+PORT = chat_server_port
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = '!DISCONNECT'
-SERVER = socket.gethostbyname(socket.gethostname())
+SERVER = chat_server_ip
 ADDR = (SERVER, PORT)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
